@@ -73,9 +73,8 @@ def color_mask(img: np.ndarray, rgb: np.ndarray, tol: float) -> np.ndarray:
     return np.sqrt(((img - rgb) ** 2).sum(-1)) < tol
 
 
-def draw_ease(u: float) -> float:
+def draw_ease(u: float, a: float) -> float:
     """scene.js dagi drawEase bilan bir xil."""
-    a = 0.05
     v = 1 / (1 - a)
     if u <= 0:
         return 0.0
@@ -173,15 +172,26 @@ def main() -> int:
     dr = layout["phases"]["draw"]
     check("aylanalar formulalarga chiqmaydi", env_t > dr["formula2"]["b"] + 4,
           circles_top_px=round(env_t, 1), formula_bottom_px=round(dr["formula2"]["b"], 1))
-    check("aylanalar pastki matnga chiqmaydi", env_b < dr["explain"]["t"] - 4,
-          circles_bottom_px=round(env_b, 1), text_top_px=round(dr["explain"]["t"], 1))
+    check("aylanalar pastki matnga chiqmaydi", env_b < dr["status"]["t"] - 4,
+          circles_bottom_px=round(env_b, 1), text_top_px=round(dr["status"]["t"], 1))
 
     # 3–5) kadrlar
-    draw0, draw1 = tl["draw"]
-    pen_frames = list(range(draw0 + 10, draw1 - 10, 37))
-    hold0 = tl["noteIn"][1] + 1
+    passes = layout["passes"]
+    ease_a = layout["easeA"]
+    pen_frames = {}
+    for p_ in passes:
+        span = p_["drawEnd"] - p_["drawStart"]
+        for frac in (0.3, 0.75):
+            pen_frames[p_["drawStart"] + int(round(frac * span))] = p_
+    result_frames = {p_["drawEnd"] + 14: p_ for p_ in passes if not p_["last"] and p_["K"] in (1, 8, 32)}
+    hold0 = tl["holdStart"]
     hold_frames = [hold0, hold0 + 1, hold0 + 40, total - 30, total - 1]
-    frames = extract_frames(video, sorted(set(pen_frames + hold_frames)), ROOT / "out" / "verify_frames")
+    frames = extract_frames(video, sorted(set(pen_frames) | set(result_frames) | set(hold_frames)),
+                            ROOT / "out" / "verify_frames")
+
+    def partial(k: int) -> tuple[np.ndarray, np.ndarray]:
+        m = np.abs(n) <= k
+        return n[m], c[m]
 
     final = frames[total - 1]
     t_dense = np.linspace(0, 2 * np.pi, 6000, endpoint=False)
@@ -210,24 +220,38 @@ def main() -> int:
           d_real.mean() <= 1.0 and d_real.max() <= 4.0,
           mean_px=round(float(d_real.mean()), 3), max_px=round(float(d_real.max()), 2))
 
+    # bosqich natijalari: yashil qalin chiziq aynan z_K(t) bo'ylab (K — shu bosqich)
+    for f, p_ in sorted(result_frames.items()):
+        nk, ck = partial(p_["K"])
+        cur = to_screen(F.evaluate(nk, ck, np.linspace(0, 2 * np.pi, 3000, endpoint=False)))
+        cur = cur[(np.abs(cur[:, 0] - ax_x) > 6) & (np.abs(cur[:, 1] - ax_y) > 6)]
+        gmask = color_mask(frames[f], GREEN, 60)
+        gmask[:, ax_x - 4 : ax_x + 5] = False
+        gmask[ax_y - 4 : ax_y + 5, :] = False
+        yy, xx = np.nonzero(gmask)
+        dmax = float(nearest(cur, np.column_stack([xx, yy]).astype(float)).max())
+        check(f"{p_['circles']} ta aylana natijasi = z_K(t), K={p_['K']} (≤ 2px)", dmax <= 2.0, frame=f, max_px=round(dmax, 2))
+
     inset = layout["phases"]["draw"]["inset"]
     pen_err = []
-    for f in pen_frames:
+    for f, p_ in sorted(pen_frames.items()):
         img = frames[f]
         m = color_mask(img, ORANGE, 70)
         m[: 560] = False
         m[1340:] = False
-        m[int(inset["t"]) - 4 : int(inset["b"]) + 4, int(inset["l"]) - 4 : int(inset["r"]) + 4] = False
+        if p_["last"]:
+            m[int(inset["t"]) - 4 : int(inset["b"]) + 4, int(inset["l"]) - 4 : int(inset["r"]) + 4] = False
         ys, xs = np.nonzero(m)
-        t = 2 * math.pi * draw_ease((f - draw0) / (draw1 - draw0))
-        exp = to_screen(F.evaluate(n, c, np.array([t])))[0]
+        t = 2 * math.pi * draw_ease((f - p_["drawStart"]) / (p_["drawEnd"] - p_["drawStart"]), ease_a)
+        nk, ck = partial(p_["K"])
+        exp = to_screen(F.evaluate(nk, ck, np.array([t])))[0]
         if len(xs) < 50:
-            pen_err.append({"frame": f, "error": "nuqta topilmadi"})
+            pen_err.append({"frame": f, "K": p_["K"], "error": "nuqta topilmadi"})
             continue
         got = np.array([xs.mean(), ys.mean()])
-        pen_err.append({"frame": f, "t": round(t, 4), "dist_px": round(float(np.hypot(*(got - exp))), 2)})
+        pen_err.append({"frame": f, "K": p_["K"], "t": round(t, 4), "dist_px": round(float(np.hypot(*(got - exp))), 2)})
     worst = max((e.get("dist_px", 99) for e in pen_err), default=99)
-    check("chizuvchi nuqta z(t) formulasida (≤ 2px)", worst <= 2.0, worst_px=worst, samples=len(pen_err))
+    check("chizuvchi nuqta har bosqichda z_K(t) formulasida (≤ 2px)", worst <= 2.0, worst_px=worst, samples=len(pen_err))
 
     # manba (Chromium) kadrlari bit-ba-bit bir xil; videoda esa faqat siqish shovqini qolishi mumkin
     src_dir = ROOT / "out" / "verify_src"

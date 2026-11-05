@@ -118,6 +118,14 @@ class TestComputedBoundary(unittest.TestCase):
         # C₀ — egri chiziqning o'rta nuqtasi, hudud ichida (koordinata boshi yaqinida)
         self.assertLess(by_n[0]["abs"], 1.0)
 
+    def test_progressive_passes(self) -> None:
+        passes = self.res["meta"]["passes"]
+        self.assertEqual([p["K"] for p in passes], [1, 2, 4, 8, 16, 32, 64, 175])
+        self.assertEqual([p["circles"] for p in passes], [2, 4, 8, 16, 32, 64, 128, 350])
+        means = [p["mean_km"] for p in passes]
+        self.assertTrue(all(a > b for a, b in zip(means, means[1:])), means)  # har bosqich aniqroq
+        self.assertAlmostEqual(passes[-1]["mean_km"], self.res["meta"]["error"]["mean_km"], delta=0.05)
+
     def test_shape_area_preserved(self) -> None:
         n = np.array([c["n"] for c in self.res["coefficients"]])
         c = np.array([c["re"] + 1j * c["im"] for c in self.res["coefficients"]])
@@ -144,6 +152,9 @@ class TestBuildOutputs(unittest.TestCase):
             self.assertEqual(n, exp["n"])
             self.assertEqual(re_, exp["re"])
             self.assertEqual(im_, exp["im"])
+        self.assertEqual([p["K"] for p in scene["passes"]], [p["K"] for p in payload["meta"]["passes"]])
+        ring = np.loadtxt(build.BUILD / "boundary_units.csv", delimiter=",")
+        np.testing.assert_allclose(np.array(scene["boundary"]), ring, atol=1e-4)
         rows = (build.BUILD / "coefficients.csv").read_text(encoding="utf-8").strip().splitlines()
         self.assertEqual(len(rows), 1 + len(payload["coefficients"]))
 

@@ -46,6 +46,7 @@
   "error": {
    "K": 175,
    "mean_km": 0.567,
+   "rms_km": 0.793,
    "p95_km": 1.706,
    "max_km": 2.934,
    "hausdorff_km": 3.888
@@ -54,6 +55,7 @@
    {
     "K": 25,
     "mean_km": 5.009,
+    "rms_km": 6.157,
     "p95_km": 11.722,
     "max_km": 18.846,
     "hausdorff_km": 25.007
@@ -61,6 +63,7 @@
    {
     "K": 50,
     "mean_km": 2.353,
+    "rms_km": 3.003,
     "p95_km": 6.06,
     "max_km": 10.876,
     "hausdorff_km": 14.349
@@ -68,6 +71,7 @@
    {
     "K": 75,
     "mean_km": 1.603,
+    "rms_km": 2.062,
     "p95_km": 4.202,
     "max_km": 6.933,
     "hausdorff_km": 10.577
@@ -75,6 +79,7 @@
    {
     "K": 100,
     "mean_km": 1.186,
+    "rms_km": 1.567,
     "p95_km": 3.267,
     "max_km": 6.175,
     "hausdorff_km": 7.781
@@ -82,6 +87,7 @@
    {
     "K": 125,
     "mean_km": 0.908,
+    "rms_km": 1.24,
     "p95_km": 2.675,
     "max_km": 4.586,
     "hausdorff_km": 6.284
@@ -89,6 +95,7 @@
    {
     "K": 150,
     "mean_km": 0.706,
+    "rms_km": 0.954,
     "p95_km": 2.072,
     "max_km": 3.865,
     "hausdorff_km": 5.73
@@ -96,9 +103,92 @@
    {
     "K": 175,
     "mean_km": 0.567,
+    "rms_km": 0.793,
     "p95_km": 1.706,
     "max_km": 2.934,
     "hausdorff_km": 3.888
+   }
+  ],
+  "passes": [
+   {
+    "K": 1,
+    "circles": 2,
+    "terms": 3,
+    "mean_km": 54.891,
+    "rms_km": 67.429,
+    "p95_km": 126.034,
+    "max_km": 156.22,
+    "hausdorff_km": 256.508
+   },
+   {
+    "K": 2,
+    "circles": 4,
+    "terms": 5,
+    "mean_km": 41.284,
+    "rms_km": 52.407,
+    "p95_km": 104.897,
+    "max_km": 138.162,
+    "hausdorff_km": 185.524
+   },
+   {
+    "K": 4,
+    "circles": 8,
+    "terms": 9,
+    "mean_km": 22.321,
+    "rms_km": 27.97,
+    "p95_km": 54.06,
+    "max_km": 96.249,
+    "hausdorff_km": 107.402
+   },
+   {
+    "K": 8,
+    "circles": 16,
+    "terms": 17,
+    "mean_km": 13.302,
+    "rms_km": 15.723,
+    "p95_km": 27.505,
+    "max_km": 36.775,
+    "hausdorff_km": 58.439
+   },
+   {
+    "K": 16,
+    "circles": 32,
+    "terms": 33,
+    "mean_km": 7.049,
+    "rms_km": 8.967,
+    "p95_km": 17.947,
+    "max_km": 26.388,
+    "hausdorff_km": 38.243
+   },
+   {
+    "K": 32,
+    "circles": 64,
+    "terms": 65,
+    "mean_km": 3.722,
+    "rms_km": 4.85,
+    "p95_km": 10.261,
+    "max_km": 15.249,
+    "hausdorff_km": 19.329
+   },
+   {
+    "K": 64,
+    "circles": 128,
+    "terms": 129,
+    "mean_km": 1.908,
+    "rms_km": 2.425,
+    "p95_km": 4.86,
+    "max_km": 7.74,
+    "hausdorff_km": 11.711
+   },
+   {
+    "K": 175,
+    "circles": 350,
+    "terms": 351,
+    "mean_km": 0.567,
+    "rms_km": 0.793,
+    "p95_km": 1.704,
+    "max_km": 2.933,
+    "hausdorff_km": 3.892
    }
   ],
   "closure_error": 4.311326371230795e-15

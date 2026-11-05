@@ -24,6 +24,9 @@ SCENE_DATA = ROOT / "scene" / "data.js"
 
 UNIT_KM = 100.0  # formuladagi birlik: 1 = 100 km
 K_CANDIDATES = (25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400)
+# Namunaviy videodagi kabi bosqichma-bosqich aniqlashtirish: aylanalar soni 2, 4, 8, … (N = 2K),
+# oxirgi bosqich — tanlangan to'liq K
+PASS_K = (1, 2, 4, 8, 16, 32, 64)
 OFFICIAL_AREA_KM2 = 448_978  # O'zbekiston rasmiy maydoni (taqqoslash uchun)
 
 
@@ -60,6 +63,13 @@ def compute(m: int = 4096, k: int | None = None, max_hausdorff_km: float = 4.0) 
     n, c = F.truncate(n_all, c_all, chosen)
     final_err = next(s for s in scan if s["K"] == chosen)
 
+    passes = []
+    for kk in [p for p in PASS_K if p < chosen] + [chosen]:
+        nk, ck = F.truncate(n_all, c_all, kk)
+        err = F.approximation_error(ring_u, nk, ck, dense=4096)
+        passes.append({"K": kk, "circles": 2 * kk, "terms": 2 * kk + 1,
+                       **{f"{key}_km": round(v * UNIT_KM, 3) for key, v in err.items()}})
+
     # 2π ga qaytganda egri yopiqmi: z(0) va z(2π) bir xil (davriylik)
     z0 = F.evaluate(n, c, np.array([0.0, 2 * math.pi]))
     lonlat = geo.main_ring_lonlat(fc)
@@ -92,6 +102,7 @@ def compute(m: int = 4096, k: int | None = None, max_hausdorff_km: float = 4.0) 
         "selection_rule": f"eng kichik K ∈ {list(K_CANDIDATES)}: Hausdorff ≤ {max_hausdorff_km} km" if k is None else "qo'lda berilgan",
         "error": final_err,
         "error_scan": scan,
+        "passes": passes,
         "closure_error": float(abs(z0[1] - z0[0])),
     }
     coeffs = [
@@ -117,6 +128,9 @@ def write_outputs(result: dict) -> None:
         "unitKm": UNIT_KM,
         "error": result["meta"]["error"],
         "coefficients": [[c["n"], c["re"], c["im"]] for c in result["coefficients"]],
+        "passes": [{"K": p["K"], "meanKm": p["mean_km"], "rmsKm": p["rms_km"]} for p in result["meta"]["passes"]],
+        # haqiqiy chegara (Natural Earth, proyeksiyalangan, 100 km birlikda) — fonda ingichka mo'ljal chizig'i
+        "boundary": [[round(float(x), 4), round(float(y), 4)] for x, y in result["_ring_units"]],
     }
     SCENE_DATA.write_text("window.FOURIER = " + json.dumps(scene) + ";\n", encoding="utf-8")
     np.savetxt(BUILD / "boundary_units.csv", result["_ring_units"], delimiter=",", fmt="%.6f", header="x,y (100 km)")
@@ -133,6 +147,8 @@ def main() -> None:
     m = res["meta"]
     print(f"K={m['K']} ({m['terms']} had), M={m['sampling']['M']}, perimetr={m['boundary']['perimeter_km']:.1f} km")
     print("xatolik:", m["error"])
+    for p in m["passes"]:
+        print(f"  bosqich K={p['K']:>3} ({p['circles']:>3} aylana): o'rtacha {p['mean_km']:.2f} km, RMS {p['rms_km']:.2f} km")
     print("maydon (hudud):", m["boundary"]["area_territory_km2"], "km²; rasmiy:", OFFICIAL_AREA_KM2)
 
 

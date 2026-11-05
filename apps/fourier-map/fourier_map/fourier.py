@@ -89,6 +89,7 @@ def approximation_error(ring: np.ndarray, n: np.ndarray, c: np.ndarray, dense: i
     d2 = polyline_distance(ring_dense, approx)
     return {
         "mean": float(d1.mean()),
+        "rms": float(np.sqrt((d1**2).mean())),
         "p95": float(np.percentile(d1, 95)),
         "max": float(d1.max()),
         "hausdorff": float(max(d1.max(), d2.max())),
