@@ -47,6 +47,12 @@ Jarvis uchun: **Chatwoot** (IG DM/komment/Telegram/sayt inbox), **Twenty CRM** (
 | redis    | navbat + kesh                           |
 | minio    | video/rasm/audio                        |
 
+## Mustaqil vositalar
+- `apps/fourier-map` — Oʻzbekiston chegarasining Furye epitsikllari bilan chizilgan Reels videosi.
+  Oflayn ishlaydi, tashqi servis yoki API kaliti kerak emas: Python (numpy) koeffitsiyentlarni hisoblaydi,
+  Canvas sahnani Chromium (Playwright) render qiladi, ffmpeg (libx264) MP4 yig'adi.
+  Ma'lumot manbai — Natural Earth 1:10m (public domain), repoga commit qilingan.
+
 ## Content Engine grafi
 
 ```

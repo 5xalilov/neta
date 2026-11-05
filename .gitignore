@@ -13,3 +13,6 @@ infra/tts/models/
 *.egg-info/
 .venv/
 out/
+
+# fourier-map: tayyor video commit qilinadi, ish fayllari (out/) yo'q
+!apps/fourier-map/dist/*.mp4

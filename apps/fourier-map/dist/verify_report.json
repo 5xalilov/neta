@@ -1,0 +1,460 @@
+{
+ "ok": true,
+ "video": "dist/uzbekistan_fourier.mp4",
+ "probe": {
+  "codec": "h264",
+  "profile": "High",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30.0,
+  "pix_fmt": "yuv420p",
+  "frames": 840,
+  "duration": 28.0,
+  "size_mb": 10.72,
+  "color_space": "bt709",
+  "audio_streams": 0
+ },
+ "pen_samples": [
+  {
+   "frame": 175,
+   "t": 0.0287,
+   "dist_px": 0.63
+  },
+  {
+   "frame": 212,
+   "t": 0.4823,
+   "dist_px": 0.79
+  },
+  {
+   "frame": 249,
+   "t": 0.9921,
+   "dist_px": 0.71
+  },
+  {
+   "frame": 286,
+   "t": 1.5019,
+   "dist_px": 0.62
+  },
+  {
+   "frame": 323,
+   "t": 2.0117,
+   "dist_px": 0.75
+  },
+  {
+   "frame": 360,
+   "t": 2.5215,
+   "dist_px": 0.72
+  },
+  {
+   "frame": 397,
+   "t": 3.0314,
+   "dist_px": 0.8
+  },
+  {
+   "frame": 434,
+   "t": 3.5412,
+   "dist_px": 0.74
+  },
+  {
+   "frame": 471,
+   "t": 4.051,
+   "dist_px": 0.74
+  },
+  {
+   "frame": 508,
+   "t": 4.5608,
+   "dist_px": 0.69
+  },
+  {
+   "frame": 545,
+   "t": 5.0706,
+   "dist_px": 0.78
+  },
+  {
+   "frame": 582,
+   "t": 5.5805,
+   "dist_px": 0.64
+  },
+  {
+   "frame": 619,
+   "t": 6.0903,
+   "dist_px": 0.76
+  }
+ ],
+ "checks": [
+  {
+   "name": "video: H.264 1080×1920 30fps yuv420p",
+   "ok": true,
+   "codec": "h264",
+   "profile": "High",
+   "width": 1080,
+   "height": 1920,
+   "fps": 30.0,
+   "pix_fmt": "yuv420p",
+   "frames": 840,
+   "duration": 28.0,
+   "size_mb": 10.72,
+   "color_space": "bt709",
+   "audio_streams": 0
+  },
+  {
+   "name": "video: butun fayl xatosiz decode bo'ladi",
+   "ok": true,
+   "stderr": ""
+  },
+  {
+   "name": "video: davomiylik 25–30 s",
+   "ok": true,
+   "duration": 28.0,
+   "frames": 840
+  },
+  {
+   "name": "intro/question: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 81,
+    "r": 999,
+    "t": 792,
+    "b": 949
+   }
+  },
+  {
+   "name": "draw/question: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 102,
+    "r": 978,
+    "t": 285,
+    "b": 316
+   }
+  },
+  {
+   "name": "draw/question: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 362.0
+  },
+  {
+   "name": "draw/formula1: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 269,
+    "r": 811,
+    "t": 350,
+    "b": 454
+   }
+  },
+  {
+   "name": "draw/formula1: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 224.4
+  },
+  {
+   "name": "draw/formula2: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 212,
+    "r": 868,
+    "t": 480,
+    "b": 517
+   }
+  },
+  {
+   "name": "draw/formula2: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 161.4
+  },
+  {
+   "name": "draw/card: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 692,
+    "r": 1026,
+    "t": 604,
+    "b": 856
+   }
+  },
+  {
+   "name": "draw/card: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 37.8
+  },
+  {
+   "name": "draw/inset: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 66,
+    "r": 396,
+    "t": 1030,
+    "b": 1330
+   }
+  },
+  {
+   "name": "draw/inset: o'ng tugmalar ustunidan tashqarida",
+   "ok": true,
+   "r": 396
+  },
+  {
+   "name": "draw/inset: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 17.4
+  },
+  {
+   "name": "draw/unitLabel: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 68,
+    "r": 266,
+    "t": 607,
+    "b": 627
+   }
+  },
+  {
+   "name": "draw/unitLabel: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 51.0
+  },
+  {
+   "name": "draw/axisX: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 1005,
+    "r": 1023,
+    "t": 928,
+    "b": 947
+   }
+  },
+  {
+   "name": "draw/axisX: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 34.4
+  },
+  {
+   "name": "draw/axisY: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 552,
+    "r": 571,
+    "t": 598,
+    "b": 625
+   }
+  },
+  {
+   "name": "draw/axisY: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 165.9
+  },
+  {
+   "name": "draw/explain: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 234,
+    "r": 806,
+    "t": 1367,
+    "b": 1401
+   }
+  },
+  {
+   "name": "draw/explain: o'ng tugmalar ustunidan tashqarida",
+   "ok": true,
+   "r": 806
+  },
+  {
+   "name": "draw/explain: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 125.0
+  },
+  {
+   "name": "draw/readout: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 96,
+    "r": 824,
+    "t": 1414,
+    "b": 1488
+   }
+  },
+  {
+   "name": "draw/readout: o'ng tugmalar ustunidan tashqarida",
+   "ok": true,
+   "r": 824
+  },
+  {
+   "name": "draw/readout: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 172.0
+  },
+  {
+   "name": "final/title: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 171,
+    "r": 917,
+    "t": 285,
+    "b": 365
+   }
+  },
+  {
+   "name": "final/title: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 313.0
+  },
+  {
+   "name": "final/formula1: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 269,
+    "r": 811,
+    "t": 405,
+    "b": 509
+   }
+  },
+  {
+   "name": "final/formula1: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 169.4
+  },
+  {
+   "name": "final/formula2: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 212,
+    "r": 868,
+    "t": 535,
+    "b": 572
+   }
+  },
+  {
+   "name": "final/formula2: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 106.4
+  },
+  {
+   "name": "final/unitLabel: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 68,
+    "r": 266,
+    "t": 619,
+    "b": 639
+   }
+  },
+  {
+   "name": "final/unitLabel: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 39.0
+  },
+  {
+   "name": "final/axisX: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 1005,
+    "r": 1023,
+    "t": 928,
+    "b": 947
+   }
+  },
+  {
+   "name": "final/axisX: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 34.4
+  },
+  {
+   "name": "final/axisY: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 552,
+    "r": 571,
+    "t": 610,
+    "b": 637
+   }
+  },
+  {
+   "name": "final/axisY: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 160.5
+  },
+  {
+   "name": "final/note1: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 100,
+    "r": 940,
+    "t": 1373,
+    "b": 1400
+   }
+  },
+  {
+   "name": "final/note1: o'ng tugmalar ustunidan tashqarida",
+   "ok": true,
+   "r": 940
+  },
+  {
+   "name": "final/note1: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 131.0
+  },
+  {
+   "name": "final/note2: xavfsiz zonada",
+   "ok": true,
+   "box": {
+    "l": 172,
+    "r": 868,
+    "t": 1413,
+    "b": 1439
+   }
+  },
+  {
+   "name": "final/note2: o'ng tugmalar ustunidan tashqarida",
+   "ok": true,
+   "r": 868
+  },
+  {
+   "name": "final/note2: xarita ustiga tushmaydi (≥10px)",
+   "ok": true,
+   "min_gap_px": 171.0
+  },
+  {
+   "name": "aylanalar formulalarga chiqmaydi",
+   "ok": true,
+   "circles_top_px": 586.0,
+   "formula_bottom_px": 516.6
+  },
+  {
+   "name": "aylanalar pastki matnga chiqmaydi",
+   "ok": true,
+   "circles_bottom_px": 1331.3,
+   "text_top_px": 1367
+  },
+  {
+   "name": "yakuniy chegara = formula (har nuqtada yashil chiziq ≤ 2px)",
+   "ok": true,
+   "max_px": 0.7
+  },
+  {
+   "name": "yakuniy yashil piksellar formula egri chizig'ida (≤ 4.5px)",
+   "ok": true,
+   "max_px": 3.93,
+   "green_pixels": 19895
+  },
+  {
+   "name": "haqiqiy chegara yashil chiziq ichida (o'rtacha ≤ 1px, max ≤ 4px)",
+   "ok": true,
+   "mean_px": 0.385,
+   "max_px": 0.85
+  },
+  {
+   "name": "chizuvchi nuqta z(t) formulasida (≤ 2px)",
+   "ok": true,
+   "worst_px": 0.8,
+   "samples": 13
+  },
+  {
+   "name": "yakuniy kadr ≥ 3 s o'zgarmaydi",
+   "ok": true,
+   "hold_seconds": 3.9,
+   "source_identical": true,
+   "video_mean_diff": 0.0036,
+   "video_changed_px_share": 1.7843364197530866e-05
+  }
+ ]
+}

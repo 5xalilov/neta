@@ -1,0 +1,12 @@
+{
+  "name": "fourier-map",
+  "private": true,
+  "description": "Oʻzbekiston chegarasi — Furye epitsikllari bilan chizilgan Reels (Canvas sahna + Playwright render)",
+  "scripts": {
+    "render": "node render.cjs",
+    "stills": "node render.cjs --stills 0,90,140,300,430,560,690,839 --layout out/layout.json"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

@@ -61,3 +61,17 @@ jobs:
         run: uv pip install --system -e "apps/bot[dev]"
       - name: Test with pytest
         run: pytest -q apps/bot/tests
+
+  fourier-map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install numpy
+      - name: Test (Furye koeffitsiyentlari)
+        working-directory: apps/fourier-map
+        run: python -m unittest discover -s tests -v
