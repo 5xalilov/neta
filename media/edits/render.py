@@ -52,59 +52,6 @@ def kf(keys, t):
             return v0 + (v1 - v0) * E[e](u)
     return keys[-1][1]
 
-# ---------------- shot list -----------------
-h = B / 2
-SHOTS = [
-    # 1. intro: slow-mo build, fade/blur in
-    dict(t0=0.0, t1=b(4), s=[(0, 0.0, "lin"), (b(4), 0.95, "")], z=[(0, 1.22, "out"), (b(4), 1.05, "")], focus="c"),
-    # 2. back & forth on the head-throw, one move per beat
-    dict(t0=b(4), t1=b(8), s=[(b(4), .40, "out"), (b(5), .95, "out"), (b(6), .45, "out"), (b(7), 1.0, "out"),
-                              (b(7) + h, .70, "out"), (b(8), 1.05, "")],
-         z=[(b(4), 1.10, "lin"), (b(8), 1.18, "")], focus="face", punch=[b(4), b(5), b(6), b(7), b(7) + h], rgb=True),
-    # 3. FULL motion, uncut, real-time
-    dict(t0=b(8), t1=b(16), s=[(b(8), 0.0, "lin"), (b(16), SDUR, "")], z=[(b(8), 1.04, "lin"), (b(16), 1.12, "")],
-         focus="c", bump=[b(k) for k in range(9, 16)]),
-    # 4a. velocity ramp
-    dict(t0=b(16), t1=b(18), s=[(b(16), .25, "io"), (b(18), 1.35, "")], z=[(b(16), 1.14, "lin"), (b(18), 1.08, "")],
-         focus="face", punch=[b(16)]),
-    # 4b. reverse, mirrored
-    dict(t0=b(18), t1=b(20), s=[(b(18), 2.35, "out"), (b(20), 1.25, "")], z=[(b(18), 1.08, "lin"), (b(20), 1.16, "")],
-         focus="c", flip=True, punch=[b(18), b(19)]),
-    # 4c. face close-up
-    dict(t0=b(20), t1=b(22), s=[(b(20), 1.35, "lin"), (b(22), 2.35, "")], z=[(b(20), 1.75, "lin"), (b(22), 1.95, "")],
-         focus="face", punch=[b(20), b(21)], rgb=True),
-    # 4d. fast forward then freeze + push
-    dict(t0=b(22), t1=b(24), s=[(b(22), 2.35, "out"), (b(23), SDUR, "hold"), (b(24), SDUR, "")],
-         z=[(b(22), 1.10, "lin"), (b(23), 1.10, "out"), (b(24), 1.35, "")], focus="face", punch=[b(22), b(23)],
-         flash=[(b(23), .45)], rgb=True),
-    # 4e. rocking stutter, half-beat
-    dict(t0=b(24), t1=b(26), s=[(b(24), .55, "out"), (b(24) + h, .95, "out"), (b(25), .55, "out"), (b(25) + h, .95, "out"),
-                                (b(26), .55, "")],
-         z=[(b(24), 1.38, "lin"), (b(26), 1.45, "")], focus="face", punch=[b(24), b(24) + h, b(25), b(25) + h], rgb=True),
-    # 4f. slow→fast ramp with tilt
-    dict(t0=b(26), t1=b(28), s=[(b(26), 1.0, "in"), (b(28), 2.7, "")], z=[(b(26), 1.06, "lin"), (b(28), 1.22, "")],
-         rot=[(b(26), 0, "in"), (b(28), -3.5, "")], focus="face", punch=[b(26)]),
-    # 5. rewind (VHS)
-    dict(t0=b(28), t1=b(32), s=[(b(28), SDUR, "in"), (b(32), .30, "")], z=[(b(28), 1.10, "lin"), (b(32), 1.06, "")],
-         focus="c", vhs=True, punch=[b(30)]),
-    # 6. finale slow-mo grin → fade out
-    dict(t0=b(32), t1=DUR + 1, s=[(b(32), 1.30, "out"), (DUR, 3.30, "")], z=[(b(32), 1.06, "io"), (DUR, 1.38, "")],
-         focus="face", punch=[b(32)], rgb=True),
-]
-# transitions at cuts: kind per cut index (between SHOTS[i] and SHOTS[i+1])
-TRANS = ["zoom", "flash", "whipL", "whipR", "zoom", "whipU", "whipL", "zoom", "whipR", "flash"]
-CUTS = [s["t1"] for s in SHOTS[:-1]]
-WH = 4.5 / FPS   # half-width of whip window
-
-FLASHES = [(b(8), 1.0), (b(16), .45), (b(32), 0.9), (b(28), .25), (b(4), .3)] + \
-          [(f[0], f[1]) for s in SHOTS for f in s.get("flash", [])]
-SHAKES = [b(8), b(16), b(32), b(4), b(24), b(28)]
-
-def shot_at(t):
-    for i, s in enumerate(SHOTS):
-        if s["t0"] <= t < s["t1"]: return i, s
-    return len(SHOTS) - 1, SHOTS[-1]
-
 # ---------------- grading -----------------
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
 r2 = ((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2
@@ -208,59 +155,121 @@ def render_shot(s, t, ox=0, oy=0, extra_z=1.0, blur_vec=None, zoom_blur=0.0):
             img = cv2.resize(sm, (W, H), interpolation=cv2.INTER_CUBIC)
     return img, st
 
+# ---------------- timeline mirrored from the reference edit -----------------
+F = lambda n: n / FPS
+CUT = [59, 114, 170, 223, 251, 279, 307, 335, 362, 391, 444]          # first frame of each new shot (ref)
+TT = [F(n) for n in CUT]
+PULSES = [6.30, 6.533, 6.767, 6.967, 13.70, 13.933, 14.133, 14.367]
+TRANS = {59: "whip", 114: "softwhip", 170: "whip", 223: "flashcut", 251: "fadeblack", 279: "fadeblack",
+         307: "fadeblack", 335: "fadeblack", 362: "fadeblack", 391: "whip", 444: "flashcut"}
+WDIR = {59: (1, 0.35), 170: (-1, 0.3), 391: (1, -0.3), 114: (0, 0)}
+PRE = {"whip": 0.27, "softwhip": 0.20, "fadeblack": 0.23, "flashcut": 0.0}
+POST = {"whip": 0.22, "softwhip": 0.18, "fadeblack": 0.0, "flashcut": 0.0}
+
+P1, P2, P3, P4 = PULSES[:4]; Q1, Q2, Q3, Q4 = PULSES[4:]
+SHOTS = [
+    dict(t0=0, t1=TT[0], s=[(0, 0.0, "lin"), (TT[0], 0.75, "")], z=[(0, 1.04, "lin"), (TT[0], 1.16, "")], focus="c"),
+    # FULL motion, continuous across the 3.80 accent
+    dict(t0=TT[0], t1=TT[2], s=[(TT[0], 0.0, "lin"), (TT[2], SDUR, "")], z=[(TT[0], 1.04, "lin"), (TT[2], 1.10, "")], focus="c"),
+    # rewind, then back-and-forth on the pulses
+    dict(t0=TT[2], t1=TT[3], s=[(TT[2], SDUR, "io"), (P1, 0.95, "out"), (P2, 0.55, "out"), (P3, 0.95, "out"), (P4, 0.55, "out"),
+                                (TT[3], 1.10, "")], z=[(TT[2], 1.15, "lin"), (TT[3], 1.28, "")], focus="face"),
+    dict(t0=TT[3], t1=TT[4], s=[(TT[3], 0.42, "out"), (TT[4], 1.15, "")], z=[(TT[3], 1.12, "lin"), (TT[4], 1.18, "")], focus="face"),
+    dict(t0=TT[4], t1=TT[5], s=[(TT[4], 1.15, "out"), (TT[5], 0.42, "")], z=[(TT[4], 1.12, "lin"), (TT[5], 1.20, "")], focus="face", flip=True),
+    dict(t0=TT[5], t1=TT[6], s=[(TT[5], 1.45, "lin"), (TT[6], 2.30, "")], z=[(TT[5], 1.75, "lin"), (TT[6], 1.88, "")], focus="face"),
+    dict(t0=TT[6], t1=TT[7], s=[(TT[6], 2.25, "out"), (TT[7], 3.35, "")], z=[(TT[6], 1.08, "lin"), (TT[7], 1.16, "")], focus="c", flip=True),
+    dict(t0=TT[7], t1=TT[8], s=[(TT[7], 3.40, "out"), (TT[8], 2.40, "")], z=[(TT[7], 1.45, "lin"), (TT[8], 1.55, "")], focus="face"),
+    dict(t0=TT[8], t1=TT[9], s=[(TT[8], 0.15, "io"), (TT[9], 1.30, "")], z=[(TT[8], 1.10, "lin"), (TT[9], 1.20, "")], focus="face"),
+    dict(t0=TT[9], t1=TT[10], s=[(TT[9], 1.40, "lin"), (Q1, 2.10, "out"), (Q2, 1.80, "out"), (Q3, 2.10, "out"), (Q4, 1.80, "out"),
+                                 (TT[10], 2.45, "")], z=[(TT[9], 1.28, "lin"), (TT[10], 1.38, "")], focus="face"),
+    dict(t0=TT[10], t1=DUR + 1, s=[(TT[10], 1.55, "lin"), (DUR, 3.55, "")], z=[(TT[10], 1.05, "io"), (DUR, 1.32, "")], focus="face"),
+]
+
+def shot_at(t):
+    for s in SHOTS:
+        if s["t0"] <= t < s["t1"]: return s
+    return SHOTS[-1]
+
+def eo(u): return 1 - (1 - u) ** 3
+def ei(u): return u ** 2.2
+
+def grade2(x):
+    x = np.clip(x * 1.30, 0, None)
+    x = x / (1 + 0.12 * x)
+    x = np.clip(x, 0, 1) ** 0.92
+    x = np.clip(x + 0.35 * (x - 0.5) * (1 - np.abs(2 * x - 1)), 0, 1)   # S-curve contrast
+    l = (0.299 * x[..., 0] + 0.587 * x[..., 1] + 0.114 * x[..., 2])[..., None]
+    x = l + (x - l) * 1.22
+    x = x * np.array([1.03, 0.995, 0.95], np.float32) + np.array([0.012, 0.008, 0.0], np.float32)
+    # soft glow / diffusion
+    sm = cv2.resize(x, (W // 6, H // 6), interpolation=cv2.INTER_AREA)
+    sm = cv2.GaussianBlur(sm, (0, 0), 5)
+    gl = cv2.resize(sm, (W, H), interpolation=cv2.INTER_LINEAR)
+    x = 1 - (1 - x) * (1 - 0.13 * gl)              # screen
+    x = x * (1 - 0.18 * np.clip(r2 - 0.35, 0, None))[..., None]
+    return x
+
+def big_blur(img, sigma, dvec=(0, 0)):
+    if sigma < 0.6 and dvec == (0, 0): return img
+    sm = cv2.resize(img, (W // 4, H // 4), interpolation=cv2.INTER_AREA)
+    if sigma >= 0.6: sm = cv2.GaussianBlur(sm, (0, 0), max(sigma / 4, 0.3))
+    Lx, Ly = int(abs(dvec[0]) / 4) | 1, int(abs(dvec[1]) / 4) | 1
+    if Lx > 1 or Ly > 1:
+        for _ in range(2): sm = cv2.blur(sm, (Lx, Ly), borderType=cv2.BORDER_REFLECT101)
+    return cv2.resize(sm, (W, H), interpolation=cv2.INTER_CUBIC)
+
 def render(t):
-    i, s = shot_at(t)
-    ox = oy = 0.0; bv = None; zb = 0.0; ez = 1.0
-    # transitions around cuts
-    for ci, ct in enumerate(CUTS):
-        d = t - ct
-        if abs(d) < WH:
-            kind = TRANS[ci]
-            p = d / WH                     # -1..1
-            mag = (1 - abs(p)) ** 0.7 if False else (1 - abs(p) ** 1.5)
-            if kind.startswith("whip"):
-                dirv = {"L": (-1, 0), "R": (1, 0), "U": (0, -1)}[kind[-1]]
-                disp = (0.5 * (1 + p) if p < 0 else -0.5 * (1 - p))  # outgoing slides out, incoming slides in
-                disp = math.copysign(abs(disp) ** 1.6, disp) * 1.2
-                span = W if dirv[0] else H
-                ox, oy = dirv[0] * disp * span, dirv[1] * disp * span
-                L = 0.9 * span * mag
-                bv = (dirv[0] * L, dirv[1] * L)
-            elif kind == "zoom":
-                zb = 0.45 * mag; ez = 1 + 0.25 * mag
-    img, st = render_shot(s, t, ox, oy, ez, bv, zb)
-    if s.get("vhs"):
-        img = rgb_split(img, 7)
-        img = img * SCAN
-        l = img.mean(2, keepdims=True); img = l + (img - l) * 0.7
-        # tracking line
-        y0 = int((t * 900) % H); img[y0:y0 + 14] = img[y0:y0 + 14] * 0.6 + 0.25
-    rg = 0.0
-    if s.get("rgb"): rg = 12 * decay(t, s.get("punch", []), 0.07)
-    for ci, ct in enumerate(CUTS):
-        if abs(t - ct) < WH: rg = max(rg, 10 * (1 - abs(t - ct) / WH))
-    img = rgb_split(img, rg)
-    img = sharpen(img)
-    img = grade(img)
-    # intro blur-in
-    if t < 0.75:
-        sg = 14 * (1 - t / 0.75) ** 2
-        if sg > 0.3: img = cv2.GaussianBlur(img, (0, 0), sg)
-    # flashes
-    fl = 0.0
-    for ft, a in FLASHES:
-        d = t - ft
-        if -1.5 / FPS <= d < 1.5:
-            fl = max(fl, a * (math.exp(-max(d, 0) / 0.11) if d >= 0 else 0.6))
-    for ci, ct in enumerate(CUTS):
-        if TRANS[ci] == "flash" and abs(t - ct) < 2 / FPS: fl = max(fl, 1.0)
-    img = img + (1.0 - img) * min(fl, 1.0) * 0.85
-    # grain
-    img = img + rng.normal(0, 0.012, (H // 2, W // 2, 1)).astype(np.float32).repeat(2, 0).repeat(2, 1)
-    # global fade in / fade out
-    a = min(1.0, t / 0.6) ** 1.5
-    a *= min(1.0, max(0.0, (DUR - t) / 0.95)) ** 1.3
-    img = img * a
+    s = shot_at(t)
+    st, speed, z, rot, fx, fy = shot_params(s, t)
+    ox = oy = 0.0; blur = 0.0; dvec = (0, 0); expo = 0.0; dark = 1.0; zmul = 1.0
+    for n, ct in zip(CUT, TT):
+        kind = TRANS[n]; d = t - ct
+        if kind in ("whip", "softwhip"):
+            pre, post = PRE[kind], POST[kind]
+            dx, dy = WDIR[n]; soft = kind == "softwhip"
+            if -pre <= d < 0:
+                p = ei(1 + d / pre)
+                blur = max(blur, (12 if soft else 12) * p)
+                if not soft:
+                    ox += dx * 0.30 * W * p; oy += dy * 0.30 * H * p
+                    dvec = (dx * 620 * p, dy * 620 * p)
+                zmul *= 1 + (0.10 if soft else 0.18) * p
+                expo = max(expo, (0.25 if soft else 0.50) * p)
+            elif 0 <= d < post:
+                q = 1 - eo(d / post)
+                blur = max(blur, (12 if soft else 10) * q)
+                if not soft:
+                    ox -= dx * 0.22 * W * q; oy -= dy * 0.22 * H * q
+                    dvec = (dx * 520 * q, dy * 520 * q)
+                zmul *= 1 + (0.10 if soft else 0.22) * q
+                expo = max(expo, (0.30 if soft else 0.40) * q)
+        elif kind == "fadeblack":
+            if -PRE[kind] <= d < 0:
+                dark = min(dark, 1 - (1 + d / PRE[kind]) ** 0.9)
+        if kind in ("fadeblack", "flashcut") and 0 <= d < 0.6:
+            expo = max(expo, (0.32 if kind == "flashcut" else 0.16) * math.exp(-d / 0.10))
+            zmul *= 1 + (0.10 if kind == "flashcut" else 0.06) * (1 - eo(min(d / 0.5, 1)))
+    for pt in PULSES:
+        d = t - pt
+        if 0 <= d < 0.2:
+            k = math.exp(-d / 0.05)
+            expo = max(expo, 0.22 * k); zmul *= 1 + 0.07 * k
+    frame = sample(st, speed * 0.5 / FPS)
+    if s.get("flip"): frame = frame[:, ::-1]; fx = SW - fx
+    M = matrix(z * zmul, fx, fy, rot, ox, oy)
+    img = cv2.warpAffine(frame, M, (W, H), flags=cv2.INTER_LANCZOS4, borderMode=cv2.BORDER_REFLECT101)
+    img = sharpen(img, 0.5)
+    img = grade2(img)
+    img = big_blur(img, blur, dvec)
+    if t < 0.75:                                   # intro defocus
+        sg = 10 * (1 - t / 0.75) ** 2
+        if sg > 0.4: img = big_blur(img, sg * 4)
+    if expo > 0:
+        img = img + (np.array([1.0, 0.95, 0.86], np.float32) - img) * min(expo, 0.9)
+    img = img + rng.normal(0, 0.006, (H // 2, W // 2, 1)).astype(np.float32).repeat(2, 0).repeat(2, 1)
+    a = min(1.0, t / 0.27) ** 1.2                    # fade in (ref: 0 -> 0.27s)
+    a *= min(1.0, max(0.0, (DUR - t) / 1.35)) ** 1.4  # fade out
+    img = img * a * dark
     return (np.clip(img, 0, 1) * 255 + 0.5).astype(np.uint8)
 
 if __name__ == "__main__":
@@ -268,4 +277,3 @@ if __name__ == "__main__":
     with open(OUT_RAW, "wb") as fo:
         for n in range(lo, hi):
             fo.write(render(n / FPS).tobytes())
-            if n % 30 == 0: print(n, flush=True)
